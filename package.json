@@ -1,0 +1,32 @@
+{
+	"name": "pict-editor-timeline",
+	"version": "0.0.1",
+	"description": "Pict visual timeline editor for building multi-beat video storyboards. Add, reorder, and configure cuts with text prompts, durations, and optional start/end frame image slots. Exports clean JSON consumable by any downstream video generation system.",
+	"main": "source/Pict-Section-Timeline.js",
+	"scripts": {
+		"start": "node source/Pict-Section-Timeline.js",
+		"test": "npx mocha -u tdd --exit --timeout 5000 test/Pict-Timeline_tests.js",
+		"tests": "npx mocha -u tdd --exit --timeout 5000 -g",
+		"coverage": "npx nyc --reporter=lcov --reporter=text npm test",
+		"build": "npx quack build"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/stevenvelozo/pict-editor-timeline.git"
+	},
+	"author": "steven velozo <steven@velozo.com>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/stevenvelozo/pict-editor-timeline/issues"
+	},
+	"homepage": "https://github.com/stevenvelozo/pict-editor-timeline#readme",
+	"dependencies": {
+		"pict-view": "^1.0.68",
+		"pict-provider": "^1.0.12"
+	},
+	"devDependencies": {
+		"fable": "^3.0.0",
+		"mocha": "^10.2.0",
+		"quackage": "^1.1.0"
+	}
+}
