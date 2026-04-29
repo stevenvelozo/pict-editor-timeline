@@ -6,10 +6,11 @@
  * import/export of the storyboard JSON format. Has no DOM
  * knowledge — the parent view calls render() after any mutation.
  *
- * Cuts are stored at this.pict.AppData.Timeline.Cuts[] and each
- * cut is a plain object with: id, prompt, target_seconds,
- * start_image, end_image, plus transient UI state (_collapsed,
- * _dragOver) that is stripped on export.
+ * Each provider instance owns its own cuts array in this._Cuts so
+ * multiple PictView-Timeline instances on the same page have
+ * independent state. Each cut is a plain object with: id, prompt,
+ * target_seconds, start_image, end_image, plus transient UI state
+ * (_collapsed, _dragOver) that is stripped on export.
  *
  * @author Steven Velozo <steven@velozo.com>
  * @license MIT
@@ -36,6 +37,11 @@ class PictProviderTimelineOps extends libPictProvider
 
 		// Running counter for unique cut IDs (survives reorders)
 		this._NextCutId = 0;
+
+		// Per-instance cut storage. Each provider owns its own cuts
+		// array, so multiple timelines on the same page (e.g. one per
+		// value-input in the ExperimentRunner form) never share state.
+		this._Cuts = [];
 	}
 
 	// ================================================================
@@ -43,20 +49,15 @@ class PictProviderTimelineOps extends libPictProvider
 	// ================================================================
 
 	/**
-	 * Return the live cuts array. Creates the AppData path if it
-	 * doesn't exist yet.
+	 * Return the live cuts array for this provider instance.
 	 */
 	getCuts()
 	{
-		if (!this.pict.AppData.Timeline)
+		if (!Array.isArray(this._Cuts))
 		{
-			this.pict.AppData.Timeline = { Cuts: [] };
+			this._Cuts = [];
 		}
-		if (!Array.isArray(this.pict.AppData.Timeline.Cuts))
-		{
-			this.pict.AppData.Timeline.Cuts = [];
-		}
-		return this.pict.AppData.Timeline.Cuts;
+		return this._Cuts;
 	}
 
 	/**
@@ -289,8 +290,8 @@ class PictProviderTimelineOps extends libPictProvider
 			return;
 		}
 
-		// Clear existing cuts
-		this.pict.AppData.Timeline = { Cuts: [] };
+		// Clear existing cuts (per-instance state)
+		this._Cuts = [];
 		this._NextCutId = 0;
 
 		for (let i = 0; i < tmpBeats.length; i++)

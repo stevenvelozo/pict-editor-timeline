@@ -38,7 +38,23 @@ module.exports =
 	MaxTargetSeconds: 30,
 	FPS: 16,
 
-	// Image adapter: null = use built-in data-URL adapter.
-	// Host apps override with { onImageProvided, getThumbnailUrl }.
+	// Media adapter: null = use built-in data-URL fallback for every
+	// media kind. Host apps override with an object of the form:
+	//
+	// {
+	//     onMediaProvided: async (pKind, pFile, pCutIndex, pSlot) => string,
+	//     getMediaUrl:     (pKind, pReference) => string,
+	//     onBrowseMedia:   (pKind, pCutIndex, pSlot, fCallback) => void (optional)
+	// }
+	//
+	// pKind is a short string — 'image' today; 'audio' and
+	// 'character' when those slot types land. The timeline falls back
+	// to data-URL storage for any kind when no adapter is supplied,
+	// so it works standalone with no host integration.
+	MediaAdapter: null,
+
+	// Legacy alias. If the host sets ImageAdapter (old-style
+	// { onImageProvided, getThumbnailUrl }), the view wraps it as a
+	// MediaAdapter automatically for backward compatibility.
 	ImageAdapter: null
 };

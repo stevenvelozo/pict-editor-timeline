@@ -44,6 +44,63 @@ class PictViewTimeline extends libPictView
 			{},
 			libTimelineDragDrop);
 		this._DragDrop._ParentTimeline = this;
+
+		// Per-instance id for the hidden file input, so multiple
+		// timelines on the same page don't share (and clobber) a
+		// single global #pet-image-upload element.
+		this._FileInputId = 'pet-media-upload-' + (tmpHash || 'default').replace(/[^\w-]/g, '_');
+
+		// Resolve MediaAdapter once at construction time. If the host
+		// passed the legacy ImageAdapter shape, wrap it as a kind-
+		// aware MediaAdapter so the rest of the view only has to deal
+		// with one interface.
+		this._MediaAdapter = this._resolveMediaAdapter();
+	}
+
+	/**
+	 * Build the effective MediaAdapter from options. Supports:
+	 *  - options.MediaAdapter (new, kind-aware interface)
+	 *  - options.ImageAdapter (legacy, image-only interface) — wrapped
+	 *    with a thin shim so onMediaProvided/getMediaUrl/onBrowseMedia
+	 *    work for pKind === 'image'
+	 *  - null — default data-URL fallback for every kind
+	 */
+	_resolveMediaAdapter()
+	{
+		let tmpMedia = this.options.MediaAdapter;
+		if (tmpMedia && (typeof tmpMedia.onMediaProvided === 'function'
+			|| typeof tmpMedia.getMediaUrl === 'function'
+			|| typeof tmpMedia.onBrowseMedia === 'function'))
+		{
+			return tmpMedia;
+		}
+
+		let tmpLegacy = this.options.ImageAdapter;
+		if (tmpLegacy && (typeof tmpLegacy.onImageProvided === 'function'
+			|| typeof tmpLegacy.getThumbnailUrl === 'function'))
+		{
+			return {
+				onMediaProvided: (pKind, pFile, pCutIndex, pSlot) =>
+				{
+					if (pKind === 'image' && typeof tmpLegacy.onImageProvided === 'function')
+					{
+						return tmpLegacy.onImageProvided(pFile, pCutIndex, pSlot);
+					}
+					return null;
+				},
+				getMediaUrl: (pKind, pReference) =>
+				{
+					if (pKind === 'image' && typeof tmpLegacy.getThumbnailUrl === 'function')
+					{
+						return tmpLegacy.getThumbnailUrl(pReference);
+					}
+					return pReference;
+				}
+				// No onBrowseMedia in legacy shape.
+			};
+		}
+
+		return null;
 	}
 
 	// ================================================================
@@ -172,15 +229,19 @@ class PictViewTimeline extends libPictView
 			tmpHTML += '<div class="pet-cut-image-slot">';
 			if (tmpCut.start_image)
 			{
-				let tmpThumbUrl = this._getThumbnailUrl(tmpCut.start_image);
+				let tmpThumbUrl = this._getMediaUrl('image', tmpCut.start_image);
 				tmpHTML += `<img class="pet-cut-thumb" src="${tmpThumbUrl}" alt="Start frame" />`;
 				tmpHTML += `<button class="pet-btn-tiny pet-btn-danger" onclick="${tmpViewRef}.updateCut(${i},'start_image','');${tmpViewRef}.render()">&times;</button>`;
 			}
 			else
 			{
-				tmpHTML += `<div class="pet-cut-dropzone" onclick="${tmpViewRef}._triggerImageUpload(${i},'start_image')">`;
+				tmpHTML += `<div class="pet-cut-dropzone" onclick="${tmpViewRef}._triggerMediaUpload('image',${i},'start_image')">`;
 				tmpHTML += '<span class="pet-dropzone-label">Start<br/>Frame</span>';
 				tmpHTML += '</div>';
+				if (this._hasBrowseMedia('image'))
+				{
+					tmpHTML += `<button type="button" class="pet-cut-browse" title="Browse assets" onclick="event.stopPropagation();${tmpViewRef}._triggerMediaBrowse('image',${i},'start_image')">Browse</button>`;
+				}
 			}
 			tmpHTML += '</div>';
 
@@ -200,15 +261,19 @@ class PictViewTimeline extends libPictView
 			tmpHTML += '<div class="pet-cut-image-slot">';
 			if (tmpCut.end_image)
 			{
-				let tmpThumbUrl = this._getThumbnailUrl(tmpCut.end_image);
+				let tmpThumbUrl = this._getMediaUrl('image', tmpCut.end_image);
 				tmpHTML += `<img class="pet-cut-thumb" src="${tmpThumbUrl}" alt="End frame" />`;
 				tmpHTML += `<button class="pet-btn-tiny pet-btn-danger" onclick="${tmpViewRef}.updateCut(${i},'end_image','');${tmpViewRef}.render()">&times;</button>`;
 			}
 			else
 			{
-				tmpHTML += `<div class="pet-cut-dropzone" onclick="${tmpViewRef}._triggerImageUpload(${i},'end_image')">`;
+				tmpHTML += `<div class="pet-cut-dropzone" onclick="${tmpViewRef}._triggerMediaUpload('image',${i},'end_image')">`;
 				tmpHTML += '<span class="pet-dropzone-label">End<br/>Frame</span>';
 				tmpHTML += '</div>';
+				if (this._hasBrowseMedia('image'))
+				{
+					tmpHTML += `<button type="button" class="pet-cut-browse" title="Browse assets" onclick="event.stopPropagation();${tmpViewRef}._triggerMediaBrowse('image',${i},'end_image')">Browse</button>`;
+				}
 			}
 			tmpHTML += '</div>';
 
@@ -238,8 +303,10 @@ class PictViewTimeline extends libPictView
 			tmpHTML += '</div>';
 		}
 
-		// Hidden file input for image uploads
-		tmpHTML += '<input type="file" id="pet-image-upload" accept="image/*" style="display:none" />';
+		// Hidden file input for media uploads. Per-instance ID so
+		// multiple timelines on a page don't clobber each other's
+		// file pickers.
+		tmpHTML += `<input type="file" id="${this._FileInputId}" accept="image/*" style="display:none" />`;
 
 		tmpContainer.innerHTML = tmpHTML;
 	}
@@ -263,22 +330,68 @@ class PictViewTimeline extends libPictView
 		this.render();
 	}
 
-	_getThumbnailUrl(pRef)
+	/**
+	 * Convert a stored reference into a browser-displayable URL for
+	 * the given media kind. Falls through to the raw reference when
+	 * no adapter is configured — that's exactly what standalone mode
+	 * needs for data URLs and http URLs.
+	 */
+	_getMediaUrl(pKind, pRef)
 	{
-		if (this.options.ImageAdapter && typeof this.options.ImageAdapter.getThumbnailUrl === 'function')
+		if (this._MediaAdapter && typeof this._MediaAdapter.getMediaUrl === 'function')
 		{
-			return this.options.ImageAdapter.getThumbnailUrl(pRef);
+			let tmpUrl = this._MediaAdapter.getMediaUrl(pKind, pRef);
+			if (typeof tmpUrl === 'string' && tmpUrl.length > 0)
+			{
+				return tmpUrl;
+			}
 		}
-		// Default: treat the reference as a URL/data-URL directly
 		return pRef;
 	}
 
-	_triggerImageUpload(pCutIndex, pSlot)
+	/**
+	 * Returns true when the current MediaAdapter exposes an
+	 * onBrowseMedia hook for the given kind. Render uses this to
+	 * decide whether to emit the "Browse" chip inside a drop zone.
+	 */
+	_hasBrowseMedia(pKind)
+	{
+		if (!this._MediaAdapter || typeof this._MediaAdapter.onBrowseMedia !== 'function')
+		{
+			return false;
+		}
+		// Adapters can optionally declare which kinds they support;
+		// default is "all kinds" so standalone wiring stays simple.
+		if (Array.isArray(this._MediaAdapter.supportedKinds)
+			&& this._MediaAdapter.supportedKinds.indexOf(pKind) < 0)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Opens the hidden file picker and pipes the chosen file through
+	 * the MediaAdapter (or the built-in data-URL fallback when no
+	 * adapter is configured).
+	 */
+	_triggerMediaUpload(pKind, pCutIndex, pSlot)
 	{
 		if (typeof document === 'undefined') return;
 
-		let tmpInput = document.getElementById('pet-image-upload');
+		let tmpInput = document.getElementById(this._FileInputId);
 		if (!tmpInput) return;
+
+		// Adjust accept hint by kind so native file pickers filter
+		// sensibly. Images today; audio/characters tomorrow.
+		if (pKind === 'audio')
+		{
+			tmpInput.setAttribute('accept', 'audio/*');
+		}
+		else
+		{
+			tmpInput.setAttribute('accept', 'image/*');
+		}
 
 		let tmpSelf = this;
 		tmpInput.onchange = function ()
@@ -286,19 +399,27 @@ class PictViewTimeline extends libPictView
 			if (!tmpInput.files || !tmpInput.files[0]) return;
 			let tmpFile = tmpInput.files[0];
 
-			if (tmpSelf.options.ImageAdapter && typeof tmpSelf.options.ImageAdapter.onImageProvided === 'function')
+			if (tmpSelf._MediaAdapter && typeof tmpSelf._MediaAdapter.onMediaProvided === 'function')
 			{
-				// Host app handles storage
-				Promise.resolve(tmpSelf.options.ImageAdapter.onImageProvided(tmpFile, pCutIndex, pSlot))
+				// Host app handles storage; expects a reference string back
+				Promise.resolve(tmpSelf._MediaAdapter.onMediaProvided(pKind, tmpFile, pCutIndex, pSlot))
 					.then(function (pRef)
 					{
-						tmpSelf._TimelineOps.updateCut(pCutIndex, pSlot, pRef);
-						tmpSelf.render();
+						if (typeof pRef === 'string' && pRef.length > 0)
+						{
+							tmpSelf._TimelineOps.updateCut(pCutIndex, pSlot, pRef);
+							tmpSelf.render();
+						}
+					})
+					.catch(function (pError)
+					{
+						if (tmpSelf.log) tmpSelf.log.warn(
+							'MediaAdapter.onMediaProvided failed: ' + (pError && pError.message));
 					});
 			}
 			else
 			{
-				// Default: read as data URL
+				// Standalone fallback: read as data URL
 				let tmpReader = new FileReader();
 				tmpReader.onload = function (e)
 				{
@@ -313,6 +434,28 @@ class PictViewTimeline extends libPictView
 		};
 
 		tmpInput.click();
+	}
+
+	/**
+	 * Invokes the MediaAdapter's onBrowseMedia hook so the host app
+	 * can present its own picker UI. The adapter calls back with a
+	 * reference string which we store on the cut and re-render.
+	 */
+	_triggerMediaBrowse(pKind, pCutIndex, pSlot)
+	{
+		if (!this._MediaAdapter || typeof this._MediaAdapter.onBrowseMedia !== 'function')
+		{
+			return;
+		}
+		let tmpSelf = this;
+		this._MediaAdapter.onBrowseMedia(pKind, pCutIndex, pSlot, function (pRef)
+		{
+			if (typeof pRef === 'string' && pRef.length > 0)
+			{
+				tmpSelf._TimelineOps.updateCut(pCutIndex, pSlot, pRef);
+				tmpSelf.render();
+			}
+		});
 	}
 
 	_exportToClipboard()

@@ -17,12 +17,12 @@ suite
 	() =>
 	{
 		/**
-		 * Helper: create a fresh TimelineOps provider with a minimal
-		 * mock of the pict.AppData surface it needs. We don't need a
-		 * full Pict instance for data-model tests — the provider only
-		 * touches this.pict.AppData.Timeline.Cuts[] and this.log.
+		 * Helper: create a fresh TimelineOps provider. Each provider
+		 * instance owns its own cuts array (this._Cuts), so no
+		 * AppData mock is required — the provider only touches
+		 * this.log and its own instance state.
 		 */
-		function createOps()
+		function createOps(pServiceHash)
 		{
 			let tmpFable = new libFable(
 				{
@@ -30,7 +30,8 @@ suite
 					LogStreams: [{ streamtype: 'console', level: 'fatal' }]
 				});
 
-			// Minimal mock of the pict service surface the provider uses
+			// Minimal mock of the pict surface (log is still read in
+			// the import/export error paths)
 			let tmpMockPict =
 			{
 				AppData: {},
@@ -38,8 +39,7 @@ suite
 			};
 
 			// Construct the provider directly (it extends fable-serviceproviderbase)
-			let tmpOps = new libTimelineOps(tmpFable, {}, 'TestTimelineOps');
-			// Wire up the pict reference the provider reads
+			let tmpOps = new libTimelineOps(tmpFable, {}, pServiceHash || 'TestTimelineOps');
 			tmpOps.pict = tmpMockPict;
 			tmpOps.log = tmpFable.log;
 			tmpOps._ParentTimeline =
@@ -522,6 +522,95 @@ suite
 						tmpOps.duplicateCut(0);
 						let tmpDupId = tmpOps.getCuts()[1].id;
 						libAssert.notStrictEqual(tmpOriginalId, tmpDupId);
+						fDone();
+					}
+				);
+			}
+		);
+
+		// ============================================================
+		// Multi-instance isolation
+		// ============================================================
+		suite
+		(
+			'Multi-instance isolation',
+			() =>
+			{
+				test
+				(
+					'two provider instances should not share cuts',
+					(fDone) =>
+					{
+						let tmpOpsA = createOps('TimelineOpsA');
+						let tmpOpsB = createOps('TimelineOpsB');
+
+						tmpOpsA.addCut(-1);
+						tmpOpsA.updateCut(0, 'prompt', 'A-only');
+
+						// Instance B must start empty and stay empty
+						libAssert.strictEqual(tmpOpsB.getCutCount(), 0, 'B should not see A\'s cut');
+
+						tmpOpsB.addCut(-1);
+						tmpOpsB.updateCut(0, 'prompt', 'B-only');
+
+						// After B adds its own cut, A should still have exactly one
+						libAssert.strictEqual(tmpOpsA.getCutCount(), 1);
+						libAssert.strictEqual(tmpOpsA.getCuts()[0].prompt, 'A-only');
+						libAssert.strictEqual(tmpOpsB.getCutCount(), 1);
+						libAssert.strictEqual(tmpOpsB.getCuts()[0].prompt, 'B-only');
+						fDone();
+					}
+				);
+
+				test
+				(
+					'loadStoryboard on one instance must not affect another',
+					(fDone) =>
+					{
+						let tmpOpsA = createOps('TimelineOpsA');
+						let tmpOpsB = createOps('TimelineOpsB');
+
+						tmpOpsA.loadStoryboard([
+							{ prompt: 'a1', target_seconds: 1 },
+							{ prompt: 'a2', target_seconds: 2 }
+						]);
+						tmpOpsB.loadStoryboard([
+							{ prompt: 'b1', target_seconds: 3 }
+						]);
+
+						libAssert.strictEqual(tmpOpsA.getCutCount(), 2);
+						libAssert.strictEqual(tmpOpsA.getCuts()[0].prompt, 'a1');
+						libAssert.strictEqual(tmpOpsA.getCuts()[1].prompt, 'a2');
+
+						libAssert.strictEqual(tmpOpsB.getCutCount(), 1);
+						libAssert.strictEqual(tmpOpsB.getCuts()[0].prompt, 'b1');
+						fDone();
+					}
+				);
+
+				test
+				(
+					'polling-style repeated addCut should not accumulate across instances',
+					(fDone) =>
+					{
+						// Simulates the retold-labs bug: each "poll" spins
+						// up a new TimelineOps and seeds it with one empty
+						// cut. Previously this bled cuts into a shared
+						// AppData array; now each instance must stay at 1.
+						let tmpInstances = [];
+						for (let i = 0; i < 10; i++)
+						{
+							let tmpOps = createOps('PollOps-' + i);
+							tmpOps.addCut(-1);
+							tmpInstances.push(tmpOps);
+						}
+						for (let i = 0; i < tmpInstances.length; i++)
+						{
+							libAssert.strictEqual(
+								tmpInstances[i].getCutCount(),
+								1,
+								'instance ' + i + ' should have exactly one cut');
+						}
 						fDone();
 					}
 				);

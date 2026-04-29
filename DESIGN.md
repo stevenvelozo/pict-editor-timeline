@@ -138,9 +138,12 @@ Following `pict-section-formeditor` exactly:
 - Extends `libPictView`
 - In constructor: creates `TimelineDragDrop` and `TimelineOps`
   providers via `this.pict.addProvider()`
-- Stores the cut array in `this.pict.AppData.Timeline.Cuts`
+- Each `TimelineOps` provider owns its own cuts array in
+  `this._Cuts` — multiple timeline instances on the same page have
+  fully independent state. No shared `pict.AppData` path.
 - Renders by iterating over cuts and emitting per-cut HTML
-- Exposes `getStoryboard()` and `loadStoryboard()` on `window`
+- Exposes `getStoryboard()` and `loadStoryboard()` on its own instance
+  (host apps access via their stored view reference)
 
 **Pict-Provider-TimelineDragDrop**:
 - Extends `libPictProvider`
@@ -171,7 +174,7 @@ When an image is provided via any method, the slot:
 - Shows a thumbnail preview (resized client-side for display)
 - Stores the image reference in the cut data
 
-**The image reference format depends on the host app's adapter:**
+**The media reference format depends on the host app's adapter:**
 
 | Host | start_image / end_image value |
 |---|---|
@@ -179,25 +182,51 @@ When an image is provided via any method, the slot:
 | retold-labs adapter | Materialized asset path (`/path/to/materialized/GUID/file.jpg`) |
 | CLI tool | Filesystem path (`./images/garden.jpg`) |
 
-The timeline editor ships a default adapter that uses data URLs. The
-host app overrides this by setting `options.ImageAdapter` to an object
-with:
+The timeline editor ships with a default data-URL fallback for every
+media kind. The host app overrides this by setting
+`options.MediaAdapter` to an object with:
 
 ```javascript
 {
-    // Called when user drops/selects/pastes an image
-    onImageProvided: async (file, cutIndex, slot) => {
+    // Required unless you want data-URL fallback.
+    // pKind is a short string: 'image' today; 'audio' and
+    // 'character' when those slot types land. pSlot is the cut
+    // field name ('start_image', 'end_image', 'audio', ...).
+    // Return a reference string the timeline stores on the cut.
+    onMediaProvided: async (pKind, pFile, pCutIndex, pSlot) => {
         // Upload to storage, return a reference string
         return "/path/to/stored/image.jpg";
     },
 
-    // Called to render a thumbnail from a reference string
-    getThumbnailUrl: (reference) => {
-        // Return a URL the browser can display in an <img> tag
-        return reference; // file paths, data URLs, and http URLs all work
-    }
+    // Convert a stored reference into a URL the browser can render
+    // (for images: <img src>; for audio: <audio src>; ...).
+    // Default: return the reference as-is (works for data: URLs
+    // and public http URLs).
+    getMediaUrl: (pKind, pReference) => {
+        return pReference;
+    },
+
+    // Optional: when defined, the timeline renders a "Browse" chip
+    // next to the upload drop zone for that slot. The host opens
+    // its own picker UI and calls fCallback with the chosen ref.
+    onBrowseMedia: (pKind, pCutIndex, pSlot, fCallback) => {
+        // ... show asset picker, on select: fCallback(ref)
+    },
+
+    // Optional: list supported media kinds (the timeline only
+    // shows a Browse chip for kinds in this list). Defaults to
+    // "all kinds" when omitted.
+    supportedKinds: ['image']
 }
 ```
+
+### Backward compatibility
+
+The previous `ImageAdapter` option is still honored. A host that
+passes `ImageAdapter: { onImageProvided, getThumbnailUrl }` is
+wrapped internally as a kind-aware `MediaAdapter` with `pKind ===
+'image'`. The default data-URL fallback is unchanged, so every
+existing standalone deployment continues to work.
 
 ### CSS approach
 
@@ -234,7 +263,8 @@ module.exports = {
     MaxCuts: 50,
     MinTargetSeconds: 0.5,
     MaxTargetSeconds: 30,
-    ImageAdapter: null   // null = use built-in data-URL adapter
+    MediaAdapter: null,  // null = data-URL fallback for every kind
+    ImageAdapter: null   // legacy alias; auto-wrapped as MediaAdapter
 };
 ```
 
@@ -242,8 +272,10 @@ module.exports = {
 
 When retold-labs imports the timeline editor, it provides:
 
-1. An `ImageAdapter` that wires image slots to the existing
-   asset-picker widget (upload → Parime → materialized path)
+1. A `MediaAdapter` that wires image slots to the existing
+   asset-picker widget (upload → Parime → materialized path), and
+   an `onBrowseMedia` hook that opens a LabAssets search popover so
+   users can pick from previously uploaded/generated assets
 2. A "Generate" button in the toolbar that serializes the timeline
    to the storyboard format and POSTs it to the storyboard API
 3. A route (`#/timeline`) and nav item ("Timeline") in the sidebar
@@ -252,7 +284,7 @@ This integration code lives in retold-labs, NOT in
 pict-editor-timeline. The library stays decoupled.
 
 ```javascript
-// In Pict-Application-RetoldLabs.js:
+// In PictView-RetoldLabs-ExperimentRunner.js:
 const libPictEditorTimeline = require('pict-editor-timeline');
 
 this.pict.addView('Timeline-Editor', Object.assign(
@@ -260,15 +292,25 @@ this.pict.addView('Timeline-Editor', Object.assign(
     libPictEditorTimeline.default_configuration,
     {
         DefaultDestinationAddress: '#RetoldLabs-View-Timeline',
-        ImageAdapter: {
-            onImageProvided: async (file, cutIndex, slot) => {
+        MediaAdapter: {
+            onMediaProvided: async (kind, file, cutIndex, slot) => {
                 // Upload to Parime, return materialized path
             },
-            getThumbnailUrl: (ref) => ref
+            getMediaUrl: (kind, ref) => {
+                // Return a browser-displayable URL for thumbnails
+                return ref;
+            },
+            onBrowseMedia: (kind, cutIndex, slot, cb) => {
+                // Open asset search popover, call cb(ref) on select
+            }
         }
     }),
     libPictEditorTimeline);
 ```
+
+The same adapter surface is reused for upcoming **audio** slots
+(`kind === 'audio'`) and **character reference** imagery
+(`kind === 'character'`).
 
 ## Build and test
 
