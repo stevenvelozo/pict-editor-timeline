@@ -22,11 +22,11 @@
 	"homepage": "https://github.com/stevenvelozo/pict-editor-timeline#readme",
 	"dependencies": {
 		"pict-view": "^1.0.68",
-		"pict-provider": "^1.0.12"
+		"pict-provider": "^1.0.13"
 	},
 	"devDependencies": {
-		"fable": "^3.0.0",
+		"fable": "^3.1.72",
 		"mocha": "^10.2.0",
-		"quackage": "^1.1.0"
+		"quackage": "^1.2.3"
 	}
 }
