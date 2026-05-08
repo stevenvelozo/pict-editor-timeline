@@ -36,7 +36,7 @@ module.exports = `
 .pet-btn-primary {
 	background: var(--accent, #1a6a5a);
 	border-color: var(--accent-light, #2a8a7a);
-	color: #fff;
+	color: var(--theme-color-background-panel, #fff);
 }
 .pet-btn-primary:hover {
 	background: var(--accent-light, #2a8a7a);
