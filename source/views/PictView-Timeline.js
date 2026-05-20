@@ -291,7 +291,20 @@ class PictViewTimeline extends libPictView
 		if (tmpCuts.length > 0 && tmpTotal > 0)
 		{
 			tmpHTML += '<div class="pet-duration-strip">';
-			let tmpColors = ['#2d7d6e', '#6b4c8a', '#8a6b3d', '#3d6e8a', '#8a3d5c', '#3d8a5c', '#6e3d8a', '#8a8a3d'];
+			// Category colors for the duration strip blocks. Wrapped in
+			// --theme-color-data-N tokens so a host theme can recolor the
+			// series; the hex fallbacks preserve today's look when no
+			// theme provider is active.
+			let tmpColors = [
+				'var(--theme-color-data-6, #2d7d6e)',
+				'var(--theme-color-data-7, #6b4c8a)',
+				'var(--theme-color-data-8, #8a6b3d)',
+				'var(--theme-color-data-1, #3d6e8a)',
+				'var(--theme-color-data-2, #8a3d5c)',
+				'var(--theme-color-data-3, #3d8a5c)',
+				'var(--theme-color-data-5, #6e3d8a)',
+				'var(--theme-color-data-4, #8a8a3d)'
+			];
 			for (let i = 0; i < tmpCuts.length; i++)
 			{
 				let tmpPct = ((tmpCuts[i].target_seconds || 0) / tmpTotal * 100).toFixed(1);
