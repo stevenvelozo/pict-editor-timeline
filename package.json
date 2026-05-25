@@ -25,8 +25,8 @@
 		"pict-provider": "^1.0.13"
 	},
 	"devDependencies": {
-		"fable": "^3.1.73",
+		"fable": "^3.1.75",
 		"mocha": "^10.2.0",
-		"quackage": "^1.2.3"
+		"quackage": "^1.2.5"
 	}
 }

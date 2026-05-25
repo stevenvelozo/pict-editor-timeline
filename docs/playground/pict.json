@@ -1,0 +1,18 @@
+{
+	"Product": "TimelinePlayground",
+	"TimelineViewConfig":
+	{
+		"DefaultDestinationAddress": "#Section-Playground-Mount",
+		"MaxCuts":          50,
+		"MinTargetSeconds": 0.5,
+		"MaxTargetSeconds": 30,
+		"FPS":              16,
+		"DefaultCut":
+		{
+			"prompt":         "",
+			"target_seconds": 2,
+			"start_image":    "",
+			"end_image":      ""
+		}
+	}
+}

@@ -1,0 +1,38 @@
+{
+	"Timeline":
+	{
+		"Cuts":
+		[
+			{
+				"prompt":         "Opening wide shot: morning light pours through the warehouse windows, dust motes drifting in the beams.",
+				"target_seconds": 3.5,
+				"start_image":    "https://placehold.co/240x135/2d7d6e/ffffff?text=Open",
+				"end_image":      ""
+			},
+			{
+				"prompt":         "Camera dollies in on a workbench littered with brass gears and a half-assembled clockwork bird.",
+				"target_seconds": 2,
+				"start_image":    "",
+				"end_image":      ""
+			},
+			{
+				"prompt":         "Close-up: gloved hands click the final escapement into place. The bird's eyes flicker open.",
+				"target_seconds": 1.5,
+				"start_image":    "",
+				"end_image":      ""
+			},
+			{
+				"prompt":         "The bird tilts its head, ruffles brass feathers, and takes flight across the workshop.",
+				"target_seconds": 4,
+				"start_image":    "",
+				"end_image":      "https://placehold.co/240x135/8a6b3d/ffffff?text=Flight"
+			},
+			{
+				"prompt":         "Final beat: silhouette against the sunlit window, frozen mid-flight. Cut to black.",
+				"target_seconds": 2.5,
+				"start_image":    "",
+				"end_image":      ""
+			}
+		]
+	}
+}

@@ -1,0 +1,6 @@
+{
+	"Name": "Timeline Playground",
+	"Hash": "TimelinePlayground",
+	"MainViewportViewIdentifier": "Timeline",
+	"AutoRenderMainViewportViewAfterInitialize": true
+}
