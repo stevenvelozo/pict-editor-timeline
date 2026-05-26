@@ -2,6 +2,6 @@
 	"Name": "pict-editor-timeline",
 	"Version": "1.0.1",
 	"Description": "Pict visual timeline editor for building multi-beat video storyboards. Add, reorder, and configure cuts with text prompts, durations, and optional start/end frame image slots. Exports clean JSON consumable by any downstream video generation system.",
-	"GeneratedAt": "2026-05-26T18:21:16.793Z",
-	"GitCommit": "e22d68a"
+	"GeneratedAt": "2026-05-26T21:12:49.108Z",
+	"GitCommit": "43eb75a"
 }
