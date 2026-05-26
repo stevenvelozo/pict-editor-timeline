@@ -1,0 +1,29 @@
+{
+	"Generated": "2026-05-26T18:21:16.658Z",
+	"Mode": "module",
+	"GitHubOrg": "fable-retold",
+	"DefaultBranch": "master",
+	"Module": {
+		"Name": "pict-editor-timeline",
+		"Repo": "pict-editor-timeline",
+		"Group": "",
+		"Branch": "master",
+		"HasDocs": true,
+		"HasCover": true,
+		"Sidebar": [],
+		"DocFiles": [
+			"_brand.json",
+			"_cover.md",
+			"_playground.json",
+			"playground/app.json",
+			"playground/appdata.json",
+			"playground/application.js",
+			"playground/pict.json",
+			"playground/runtime/pict-application.min.js",
+			"playground/runtime/pict-editor-timeline.min.js",
+			"playground/runtime/pict-section-modal.min.js",
+			"playground/runtime/pict.min.js"
+		]
+	},
+	"Groups": []
+}
