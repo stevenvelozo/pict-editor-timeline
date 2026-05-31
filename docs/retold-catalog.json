@@ -1,5 +1,5 @@
 {
-	"Generated": "2026-05-26T21:12:48.971Z",
+	"Generated": "2026-05-31T01:23:02.928Z",
 	"Mode": "module",
 	"GitHubOrg": "fable-retold",
 	"DefaultBranch": "master",
@@ -10,13 +10,61 @@
 		"Branch": "master",
 		"HasDocs": true,
 		"HasCover": true,
-		"Sidebar": [],
+		"Sidebar": [
+			{
+				"Title": "Getting Started",
+				"Children": [
+					{
+						"Title": "Overview",
+						"Path": "README.md"
+					},
+					{
+						"Title": "Quick Start",
+						"Path": "quickstart.md"
+					}
+				]
+			},
+			{
+				"Title": "Architecture",
+				"Children": [
+					{
+						"Title": "Design Overview",
+						"Path": "architecture.md"
+					},
+					{
+						"Title": "Data Model",
+						"Path": "data-model.md"
+					}
+				]
+			},
+			{
+				"Title": "Related Modules",
+				"Children": [
+					{
+						"Title": "Pict",
+						"Path": "https://fable-retold.github.io/pict/README.md"
+					},
+					{
+						"Title": "Pict View",
+						"Path": "https://fable-retold.github.io/pict-view/README.md"
+					},
+					{
+						"Title": "Pict Provider",
+						"Path": "https://fable-retold.github.io/pict-provider/README.md"
+					}
+				]
+			}
+		],
 		"DocFiles": [
 			".nojekyll",
+			"README.md",
 			"_brand.json",
 			"_cover.md",
 			"_playground.json",
+			"_sidebar.md",
 			"_version.json",
+			"architecture.md",
+			"data-model.md",
 			"index.html",
 			"playground/app.json",
 			"playground/appdata.json",
@@ -26,6 +74,7 @@
 			"playground/runtime/pict-editor-timeline.min.js",
 			"playground/runtime/pict-section-modal.min.js",
 			"playground/runtime/pict.min.js",
+			"quickstart.md",
 			"retold-catalog.json",
 			"retold-keyword-index.json"
 		]
