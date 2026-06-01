@@ -1,6 +1,8 @@
 # pict-editor-timeline
 
-A standalone [Pict](https://fable-retold.github.io/pict/) view library that renders a visual timeline editor for building multi-beat video storyboards.
+> **[Read the pict-editor-timeline Documentation](https://fable-retold.github.io/pict-editor-timeline/)**
+
+A standalone [Pict](https://github.com/fable-retold/pict) view library that renders a visual timeline editor for building multi-beat video storyboards.
 
 Users add, remove, reorder, and configure **cuts** - each cut has a text prompt, a duration in seconds, and optional start/end frame image slots. The editor exports a clean JSON array that any downstream system (a video-generation API, a CLI tool, a workflow engine) can consume without knowing anything about the editor itself.
 
@@ -87,9 +89,9 @@ Produces a browser bundle in `dist/` alongside the npm-requireable source tree.
 
 ## Related Modules
 
-- [pict](https://fable-retold.github.io/pict/) - the core MVC application framework this view plugs into
-- [pict-view](https://fable-retold.github.io/pict-view/) - the view base class `PictView-Timeline` extends
-- [pict-provider](https://fable-retold.github.io/pict-provider/) - the provider base class the ops and drag-drop providers extend
+- [pict](https://github.com/fable-retold/pict) - the core MVC application framework this view plugs into
+- [pict-view](https://github.com/fable-retold/pict-view) - the view base class `PictView-Timeline` extends
+- [pict-provider](https://github.com/fable-retold/pict-provider) - the provider base class the ops and drag-drop providers extend
 
 ## License
 
