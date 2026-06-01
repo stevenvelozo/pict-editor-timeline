@@ -2,8 +2,8 @@
 
 The timeline editor works with two shapes:
 
-1. The **cut** — the internal object the editor edits and renders, one per row.
-2. The **storyboard beat** — the clean object the editor exports for downstream consumption.
+1. The **cut** - the internal object the editor edits and renders, one per row.
+2. The **storyboard beat** - the clean object the editor exports for downstream consumption.
 
 The export deliberately differs from the internal shape: it drops UI-only fields and renames one image field. This page documents both, verified against the `Pict-Provider-TimelineOps` source.
 
@@ -13,20 +13,20 @@ Each cut is a plain object owned by the ops provider's per-instance cuts array.
 
 ```javascript
 {
-	// Identity — auto-assigned, stable across reorders.
+	// Identity - auto-assigned, stable across reorders.
 	id: 'cut-0',
 
 	// Content.
 	prompt: 'A woman walks through a garden at golden hour',
 	target_seconds: 3,
 
-	// Image references. Opaque strings — a data: URL in standalone mode,
+	// Image references. Opaque strings - a data: URL in standalone mode,
 	// or whatever reference string a host's MediaAdapter returns
 	// (a path, a GUID, a URL).
 	start_image: '',   // first-frame reference
 	end_image: '',     // last-frame reference (optional)
 
-	// Transient UI state — never exported.
+	// Transient UI state - never exported.
 	_collapsed: false,
 	_dragOver: false
 }
@@ -36,7 +36,7 @@ Each cut is a plain object owned by the ops provider's per-instance cuts array.
 |-------|------|-------|
 | `id` | string | `'cut-' + N`, where `N` is a per-instance counter. Unique within an instance and stable across reorders. Not exported. |
 | `prompt` | string | The text describing the cut. |
-| `target_seconds` | number | The cut's duration. Steppers clamp it to `MinTargetSeconds`..`MaxTargetSeconds` (default 0.5–30) in 0.5s increments. |
+| `target_seconds` | number | The cut's duration. Steppers clamp it to `MinTargetSeconds`..`MaxTargetSeconds` (default 0.5-30) in 0.5s increments. |
 | `start_image` | string | Start-frame reference. Empty string when unset. Exported as `beat_image`. |
 | `end_image` | string | End-frame reference. Empty string when unset. Optional. |
 | `_collapsed` | boolean | UI state. Not exported. |
@@ -46,7 +46,7 @@ New cuts are built from `DEFAULT_CUT` (`prompt: ''`, `target_seconds: 2`, `start
 
 ## The Storyboard Beat (exported)
 
-`getStoryboard()` returns an **array of beat objects** — one per cut, in order. This is the contract between the editor and any downstream video-generation system. The structure is built field by field in `Pict-Provider-TimelineOps.getStoryboard()`:
+`getStoryboard()` returns an **array of beat objects** - one per cut, in order. This is the contract between the editor and any downstream video-generation system. The structure is built field by field in `Pict-Provider-TimelineOps.getStoryboard()`:
 
 ```javascript
 {
@@ -61,7 +61,7 @@ New cuts are built from `DEFAULT_CUT` (`prompt: ''`, `target_seconds: 2`, `start
 	beat_image: '/path/to/garden.jpg',
 
 	// Present only when the cut's end_image is a non-empty string.
-	// Advisory — preserved for the user and for future end-frame
+	// Advisory - preserved for the user and for future end-frame
 	// targeting, but not required by the export contract.
 	end_image: '/path/to/flower.jpg'
 }
@@ -98,7 +98,7 @@ A two-cut timeline where the first cut has a prompt, a 3s duration, and a start 
 
 ### getStoryboardJSON()
 
-`getStoryboardJSON()` returns the same array serialized with `JSON.stringify(..., null, '\t')` — tab-indented JSON. This is what the toolbar's **Copy JSON** button writes to the clipboard.
+`getStoryboardJSON()` returns the same array serialized with `JSON.stringify(..., null, '\t')` - tab-indented JSON. This is what the toolbar's **Copy JSON** button writes to the clipboard.
 
 ## Import
 
@@ -125,7 +125,7 @@ Two things worth calling out:
 
 ## Round-Trip Guarantee
 
-Export → import → export produces **identical JSON**. The test suite verifies this directly: a timeline is exported to a JSON string, imported into a fresh ops instance, and re-exported; the two strings are asserted equal.
+Export -> import -> export produces **identical JSON**. The test suite verifies this directly: a timeline is exported to a JSON string, imported into a fresh ops instance, and re-exported; the two strings are asserted equal.
 
 ```javascript
 let tmpExport1 = _Instance.getStoryboardJSON();
@@ -148,5 +148,5 @@ erDiagram
 
 ## See Also
 
-- [Quick Start](quickstart.md) — `loadStoryboard()` and `getStoryboard()` in context
-- [Architecture](architecture.md) — where the cuts array lives and how it stays per-instance
+- [Quick Start](quickstart.md) - `loadStoryboard()` and `getStoryboard()` in context
+- [Architecture](architecture.md) - where the cuts array lives and how it stays per-instance

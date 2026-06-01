@@ -37,7 +37,7 @@ libPictEditorTimeline.TimelineOpsProvider      // Pict-Provider-TimelineOps clas
 libPictEditorTimeline.TimelineDragDropProvider // Pict-Provider-TimelineDragDrop class
 ```
 
-Registering the default export with `pict.addView()` is all most consumers need — the view creates its own providers internally.
+Registering the default export with `pict.addView()` is all most consumers need - the view creates its own providers internally.
 
 ## Provider Wiring
 
@@ -53,22 +53,22 @@ this._DragDrop._ParentTimeline = this;
 
 Each provider gets a back-reference to its parent view (`_ParentTimeline`). The providers use that reference to read view options and to call `this._ParentTimeline.render()` after a mutation or reorder.
 
-The view also computes a per-instance ID for its hidden file `<input>` (`pet-media-upload-<hash>`) so that multiple timelines on the same page do not share — and clobber — a single global file picker.
+The view also computes a per-instance ID for its hidden file `<input>` (`pet-media-upload-<hash>`) so that multiple timelines on the same page do not share - and clobber - a single global file picker.
 
 ## Per-Instance State
 
-State isolation is a deliberate design point. The ops provider keeps its cuts in `this._Cuts`, an array it owns directly — **not** in a shared `pict.AppData` path. Because each `PictView-Timeline` instance creates its own ops provider, every timeline on the page has fully independent cuts.
+State isolation is a deliberate design point. The ops provider keeps its cuts in `this._Cuts`, an array it owns directly - **not** in a shared `pict.AppData` path. Because each `PictView-Timeline` instance creates its own ops provider, every timeline on the page has fully independent cuts.
 
 The test suite pins this down: two ops instances do not share cuts, `loadStoryboard()` on one does not affect another, and repeatedly constructing fresh ops instances (the pattern a polling host might use) never accumulates state across them.
 
 ## Rendering
 
-The view overrides `render()` directly and builds the editor as an HTML string assigned to the destination element. (It does not use Pict's `Templates`/`Renderables` machinery — the configuration's `DefaultRenderable` field is vestigial.) A single `render()` call emits four regions:
+The view overrides `render()` directly and builds the editor as an HTML string assigned to the destination element. (It does not use Pict's `Templates`/`Renderables` machinery - the configuration's `DefaultRenderable` field is vestigial.) A single `render()` call emits four regions:
 
 ```mermaid
 graph TB
     subgraph Editor["PictView-Timeline render output"]
-        TB["Toolbar: Add Cut · cut count + total seconds · Copy JSON"]
+        TB["Toolbar: Add Cut - cut count + total seconds - Copy JSON"]
         List["Cuts list: one card per cut"]
         Strip["Duration strip: proportional color blocks (read-only)"]
         Input["Hidden file input (per-instance id)"]
@@ -134,7 +134,7 @@ The view resolves an effective media adapter once at construction time (`_resolv
 - Otherwise, if the legacy `options.ImageAdapter` (`{ onImageProvided, getThumbnailUrl }`) is present, it is wrapped in a thin shim that adapts it to the kind-aware interface for `pKind === 'image'`.
 - Otherwise the adapter is `null`, and the editor falls back to reading dropped files as `data:` URLs via `FileReader`.
 
-At render time, populated slots call `_getMediaUrl(kind, ref)` to resolve a thumbnail URL (falling through to the raw reference when no adapter is set), and empty slots show a Browse chip only when `_hasBrowseMedia(kind)` is true — that is, when the adapter has an `onBrowseMedia` hook and the kind is in its `supportedKinds` (or `supportedKinds` is omitted, meaning "all kinds").
+At render time, populated slots call `_getMediaUrl(kind, ref)` to resolve a thumbnail URL (falling through to the raw reference when no adapter is set), and empty slots show a Browse chip only when `_hasBrowseMedia(kind)` is true - that is, when the adapter has an `onBrowseMedia` hook and the kind is in its `supportedKinds` (or `supportedKinds` is omitted, meaning "all kinds").
 
 ## CSS
 
@@ -152,5 +152,5 @@ The library has no dependency on any video-generation system. The storyboard exp
 
 ## See Also
 
-- [Data Model](data-model.md) — the cut object and the exported storyboard JSON schema
-- [Quick Start](quickstart.md) — registering the view and wiring a media adapter
+- [Data Model](data-model.md) - the cut object and the exported storyboard JSON schema
+- [Quick Start](quickstart.md) - registering the view and wiring a media adapter

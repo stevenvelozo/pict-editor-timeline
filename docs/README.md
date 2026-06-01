@@ -2,7 +2,7 @@
 
 A visual timeline editor for building multi-beat video storyboards, built as a section view for the [Pict](https://fable-retold.github.io/pict/) application framework.
 
-Users assemble an ordered list of **cuts**. Each cut carries a text prompt, a target duration in seconds, and optional start/end frame image references. The editor exports a clean JSON array that any downstream video-generation system can consume — the library itself stays completely decoupled from how that JSON is used.
+Users assemble an ordered list of **cuts**. Each cut carries a text prompt, a target duration in seconds, and optional start/end frame image references. The editor exports a clean JSON array that any downstream video-generation system can consume - the library itself stays completely decoupled from how that JSON is used.
 
 ## What It Does
 
@@ -21,11 +21,11 @@ Users assemble an ordered list of **cuts**. Each cut carries a text prompt, a ta
 
 The module is one Pict view backed by two providers:
 
-- **`PictView-Timeline`** — the container view. It owns the public API (`getStoryboard()`, `loadStoryboard()`, the cut operations), builds the editor HTML, and delegates everything else to its providers.
-- **`Pict-Provider-TimelineOps`** — the data model. It owns the cuts array and implements every mutation (add, remove, duplicate, update, move) plus storyboard import/export. It has no DOM knowledge.
-- **`Pict-Provider-TimelineDragDrop`** — HTML5 drag-and-drop reordering. It tracks drag state, detects insert position, and calls the ops provider's `moveCut()`.
+- **`PictView-Timeline`** - the container view. It owns the public API (`getStoryboard()`, `loadStoryboard()`, the cut operations), builds the editor HTML, and delegates everything else to its providers.
+- **`Pict-Provider-TimelineOps`** - the data model. It owns the cuts array and implements every mutation (add, remove, duplicate, update, move) plus storyboard import/export. It has no DOM knowledge.
+- **`Pict-Provider-TimelineDragDrop`** - HTML5 drag-and-drop reordering. It tracks drag state, detects insert position, and calls the ops provider's `moveCut()`.
 
-Each `PictView-Timeline` instance spins up its **own** ops and drag-drop providers, and the ops provider keeps its cuts in a per-instance array. Multiple timelines can coexist on one page with fully independent state — there is no shared `AppData` path.
+Each `PictView-Timeline` instance spins up its **own** ops and drag-drop providers, and the ops provider keeps its cuts in a per-instance array. Multiple timelines can coexist on one page with fully independent state - there is no shared `AppData` path.
 
 See [Architecture](architecture.md) for the full breakdown.
 
@@ -33,11 +33,11 @@ See [Architecture](architecture.md) for the full breakdown.
 
 ### Cuts
 
-A cut is the unit of the timeline — a single beat of the storyboard. Internally each cut is a plain object with an `id`, a `prompt`, a `target_seconds` duration, `start_image` and `end_image` references, and some transient UI state. The full shape is documented in the [Data Model](data-model.md).
+A cut is the unit of the timeline - a single beat of the storyboard. Internally each cut is a plain object with an `id`, a `prompt`, a `target_seconds` duration, `start_image` and `end_image` references, and some transient UI state. The full shape is documented in the [Data Model](data-model.md).
 
 ### The Storyboard Export
 
-`getStoryboard()` returns a clean array meant for a downstream worker. It strips internal fields and renames `start_image` to `beat_image`. This export format — not the internal cut shape — is the contract between the editor and whatever consumes it. See the [Data Model](data-model.md) for the exact schema.
+`getStoryboard()` returns a clean array meant for a downstream worker. It strips internal fields and renames `start_image` to `beat_image`. This export format - not the internal cut shape - is the contract between the editor and whatever consumes it. See the [Data Model](data-model.md) for the exact schema.
 
 ### The Media Adapter
 
@@ -75,17 +75,17 @@ let tmpStoryboard = _Instance.getStoryboard();
 
 ## Learn More
 
-- **[Quick Start](quickstart.md)** — register the view, build a timeline, wire a media adapter
-- **[Architecture](architecture.md)** — the view + providers design and how state stays per-instance
-- **[Data Model](data-model.md)** — the cut object and the exported storyboard JSON schema
+- **[Quick Start](quickstart.md)** - register the view, build a timeline, wire a media adapter
+- **[Architecture](architecture.md)** - the view + providers design and how state stays per-instance
+- **[Data Model](data-model.md)** - the cut object and the exported storyboard JSON schema
 
 ## Related Modules
 
 `pict-editor-timeline` is part of the [Retold](https://github.com/fable-retold) module suite:
 
-- [pict](https://fable-retold.github.io/pict/) — core MVC application framework
-- [pict-view](https://fable-retold.github.io/pict-view/) — view base class (`PictView-Timeline` extends it)
-- [pict-provider](https://fable-retold.github.io/pict-provider/) — provider base class (the ops and drag-drop providers extend it)
+- [pict](https://fable-retold.github.io/pict/) - core MVC application framework
+- [pict-view](https://fable-retold.github.io/pict-view/) - view base class (`PictView-Timeline` extends it)
+- [pict-provider](https://fable-retold.github.io/pict-provider/) - provider base class (the ops and drag-drop providers extend it)
 
 ## License
 

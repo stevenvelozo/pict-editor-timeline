@@ -68,7 +68,7 @@ _Instance.duplicateCut(0);
 _Instance.removeCut(1);
 ```
 
-`updateCut()` deliberately does **not** re-render on its own — it is called on every keystroke from the prompt textarea, so re-rendering is left to the caller. `addCut()`, `removeCut()`, and `duplicateCut()` do re-render.
+`updateCut()` deliberately does **not** re-render on its own - it is called on every keystroke from the prompt textarea, so re-rendering is left to the caller. `addCut()`, `removeCut()`, and `duplicateCut()` do re-render.
 
 ## Step 4: Seed From Existing JSON
 
@@ -95,7 +95,7 @@ let tmpStoryboard = _Instance.getStoryboard();
 let tmpJSON = _Instance.getStoryboardJSON();
 ```
 
-Export → import → export is a clean round-trip and produces identical JSON. The exact schema is documented in the [Data Model](data-model.md).
+Export -> import -> export is a clean round-trip and produces identical JSON. The exact schema is documented in the [Data Model](data-model.md).
 
 The toolbar's **Copy JSON** button calls `getStoryboardJSON()` and writes the result to the clipboard (when `navigator.clipboard` is available).
 
@@ -112,7 +112,7 @@ _Pict.addView('Timeline',
 		MediaAdapter:
 		{
 			// Called when a user picks a file. Upload it, return a reference
-			// string (path, GUID, URL) — the timeline stores it on the cut.
+			// string (path, GUID, URL) - the timeline stores it on the cut.
 			// May return a value or a promise.
 			onMediaProvided: async (pKind, pFile, pCutIndex, pSlot) =>
 			{
@@ -189,5 +189,5 @@ This produces a UMD bundle in `dist/` for direct `<script>` inclusion, alongside
 
 ## Next Steps
 
-- **[Architecture](architecture.md)** — how the view and providers are wired
-- **[Data Model](data-model.md)** — the cut object and the exported storyboard JSON schema
+- **[Architecture](architecture.md)** - how the view and providers are wired
+- **[Data Model](data-model.md)** - the cut object and the exported storyboard JSON schema

@@ -2,7 +2,7 @@
 
 A standalone [Pict](https://fable-retold.github.io/pict/) view library that renders a visual timeline editor for building multi-beat video storyboards.
 
-Users add, remove, reorder, and configure **cuts** — each cut has a text prompt, a duration in seconds, and optional start/end frame image slots. The editor exports a clean JSON array that any downstream system (a video-generation API, a CLI tool, a workflow engine) can consume without knowing anything about the editor itself.
+Users add, remove, reorder, and configure **cuts** - each cut has a text prompt, a duration in seconds, and optional start/end frame image slots. The editor exports a clean JSON array that any downstream system (a video-generation API, a CLI tool, a workflow engine) can consume without knowing anything about the editor itself.
 
 The library has **zero knowledge** of any specific video-generation backend. It is a pure UI component for assembling a sequence of annotated time segments with optional image references.
 
@@ -52,7 +52,7 @@ Your page needs a target element matching `DefaultDestinationAddress`:
 ## What You Get
 
 - A toolbar with an **Add Cut** button, a live cut-count / total-duration readout, and a **Copy JSON** button.
-- A vertical list of **cut cards** — drag handle, cut number, start-frame slot, prompt textarea, duration stepper, end-frame slot, and duplicate/delete buttons.
+- A vertical list of **cut cards** - drag handle, cut number, start-frame slot, prompt textarea, duration stepper, end-frame slot, and duplicate/delete buttons.
 - HTML5 **drag-and-drop reordering** of cuts.
 - A read-only **duration strip** at the bottom: proportional-width color blocks showing each cut's relative length.
 - **Image slots** that accept a click-to-browse file picker, with a pluggable media adapter for host-controlled storage.
@@ -65,7 +65,7 @@ Full documentation lives in [`docs/`](docs/README.md):
 - [Overview](docs/README.md)
 - [Quick Start](docs/quickstart.md)
 - [Architecture](docs/architecture.md)
-- [Data Model](docs/data-model.md) — the exported storyboard JSON schema
+- [Data Model](docs/data-model.md) - the exported storyboard JSON schema
 
 A deeper design spec is in [`DESIGN.md`](DESIGN.md).
 
@@ -87,9 +87,9 @@ Produces a browser bundle in `dist/` alongside the npm-requireable source tree.
 
 ## Related Modules
 
-- [pict](https://fable-retold.github.io/pict/) — the core MVC application framework this view plugs into
-- [pict-view](https://fable-retold.github.io/pict-view/) — the view base class `PictView-Timeline` extends
-- [pict-provider](https://fable-retold.github.io/pict-provider/) — the provider base class the ops and drag-drop providers extend
+- [pict](https://fable-retold.github.io/pict/) - the core MVC application framework this view plugs into
+- [pict-view](https://fable-retold.github.io/pict-view/) - the view base class `PictView-Timeline` extends
+- [pict-provider](https://fable-retold.github.io/pict-provider/) - the provider base class the ops and drag-drop providers extend
 
 ## License
 
